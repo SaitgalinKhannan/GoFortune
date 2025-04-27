@@ -23,8 +23,6 @@ func main() {
 	fmt.Printf("private key: %s\n", privateKey)
 	rpcUrl := utils.MustGetEnv("RPC_URL")
 	fmt.Printf("RPC URL: %s\n", rpcUrl)
-	contractAddr := utils.MustGetEnv("CONTRACT_ADDR")
-	fmt.Printf("Contract address: %s\n", contractAddr)
 
 	// Подключение к BNB testnet
 	client, err := ethclient.Dial(rpcUrl)
@@ -61,8 +59,14 @@ func main() {
 	fmt.Printf("Адрес пользователя 1: %s\n", user1Address.Hex())
 	fmt.Printf("Адрес пользователя 2: %s\n", user2Address.Hex())
 
+	// Разворачиваем контракт
+	contractAddress, err := deployContract(client, ownerKey)
+	if err != nil {
+		log.Fatalf("Ошибка при развертывании контракта: %v", err)
+	}
+	fmt.Printf("Контракт развернут по адресу: %s\n", contractAddress.Hex())
+
 	// Создаем инстанс контракта
-	contractAddress := common.HexToAddress(contractAddr)
 	instance, err := NewSingleLottery(contractAddress, client)
 	if err != nil {
 		log.Fatalf("Не удалось создать экземпляр контракта: %v", err)
@@ -73,6 +77,73 @@ func main() {
 	testBuyTickets(client, instance, user1Key, user2Key)
 	testDrawLottery(client, instance, ownerKey)
 	testClaimRewards(client, instance, ownerKey, user1Key, user2Key)
+}
+
+// Функция для развертывания контракта
+func deployContract(client *ethclient.Client, ownerKey *ecdsa.PrivateKey) (common.Address, error) {
+	ctx := context.Background()
+
+	// Получаем chainID
+	chainID, err := client.NetworkID(ctx)
+	if err != nil {
+		return common.Address{}, fmt.Errorf("ошибка при получении chain ID: %v", err)
+	}
+
+	// Получаем nonce для аккаунта владельца
+	ownerAddr := crypto.PubkeyToAddress(ownerKey.PublicKey)
+	nonce, err := client.PendingNonceAt(ctx, ownerAddr)
+	if err != nil {
+		return common.Address{}, fmt.Errorf("ошибка при получении nonce: %v", err)
+	}
+
+	// Получаем рекомендуемую цену газа
+	gasPrice, err := client.SuggestGasPrice(ctx)
+	if err != nil {
+		return common.Address{}, fmt.Errorf("ошибка при получении gasPrice: %v", err)
+	}
+
+	// Создаем транзактор
+	auth, err := bind.NewKeyedTransactorWithChainID(ownerKey, chainID)
+	if err != nil {
+		return common.Address{}, fmt.Errorf("ошибка при создании транзактора: %v", err)
+	}
+	auth.Nonce = big.NewInt(int64(nonce))
+	auth.Value = big.NewInt(0) // Деплой не требует отправки BNB
+	auth.GasPrice = gasPrice
+	// auth.GasLimit оставляем пустым, чтобы go-ethereum автоматически оценил газ
+
+	// Параметры конструктора
+	ticketPrice := new(big.Int).Mul(big.NewInt(1e16), big.NewInt(1)) // 0.01 BNB = 10^16 wei
+	maxTickets := big.NewInt(100)
+	ownerFeePercent := big.NewInt(10)      // 10% владельцу
+	winnerPrizePercent := big.NewInt(50)   // 50% победителю
+	returnedPrizePercent := big.NewInt(40) // 40% возврат участникам
+
+	// Разворачиваем контракт
+	fmt.Println("Разворачиваем контракт...")
+	address, tx, instance, err := DeploySingleLottery(auth, client, ticketPrice, maxTickets, ownerFeePercent, winnerPrizePercent, returnedPrizePercent)
+	if err != nil {
+		return common.Address{}, fmt.Errorf("ошибка при развертывании контракта: %v", err)
+	}
+	fmt.Printf("Транзакция деплоя отправлена: %s\n", tx.Hash().Hex())
+
+	// Ждем подтверждения транзакции
+	receipt, err := waitForTxReceipt(client, tx.Hash())
+	if err != nil {
+		return common.Address{}, fmt.Errorf("ошибка при ожидании подтверждения деплоя: %v", err)
+	}
+	if receipt.Status == 0 {
+		return common.Address{}, fmt.Errorf("деплой не удался (транзакция reverted)")
+	}
+	fmt.Printf("Контракт успешно развернут в блоке %d\n", receipt.BlockNumber)
+
+	// Проверяем, что контракт создан
+	_, err = instance.Owner(nil)
+	if err != nil {
+		return common.Address{}, fmt.Errorf("ошибка при проверке контракта: %v", err)
+	}
+
+	return address, nil
 }
 
 // Получение информации о лотерее
