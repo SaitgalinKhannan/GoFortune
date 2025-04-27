@@ -1,0 +1,22 @@
+{
+    "chains": [
+        {
+            "name": "BNB Smart Chain Mainnet",
+            "chainId": 56,
+            "currency": "BNB",
+            "rpcUrl": "https://bsc-rpc.publicnode.com"
+        },
+        {
+            "name": "BNB Smart Chain Testnet",
+            "chainId": 97,
+            "currency": "tBNB",
+            "rpcUrl": "https://bsc-testnet-rpc.publicnode.com"
+        },
+        {
+            "name": "Ethereum Mainnet",
+            "chainId": 1,
+            "currency": "ETH",
+            "rpcUrl": "https://ethereum-rpc.publicnode.com"
+        }
+    ]
+}
