@@ -48,12 +48,13 @@ func main() {
 	// Создаем зависимости
 	lotteryRepo := repository.NewLotteryRepository(db)
 	lotteryService := service.NewLotteryService(lotteryRepo, client, ownerKey)
-	lotteryHandler := handlers.NewLotteryHandler(lotteryService)
+	lotteryHandler := handlers.NewLotteryHandler(lotteryService, cfg)
 
 	// Регистрируем роуты
 	r := mux.NewRouter()
-	r.HandleFunc("/create-lottery", lotteryHandler.CreateLottery(cfg)).Methods("POST")
-	r.HandleFunc("/lotteries", lotteryHandler.GetLotteries).Methods("GET")
+	/*r.HandleFunc("/create-lottery", lotteryHandler.CreateLottery(cfg)).Methods("POST")
+	r.HandleFunc("/lotteries", lotteryHandler.GetLotteries).Methods("GET")*/
+	handlers.SetupRoutes(r, lotteryHandler)
 
 	// Запускаем сервер
 	logrus.Println("Server started on :8080")

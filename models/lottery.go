@@ -3,7 +3,7 @@ package models
 // Lottery представляет запись о лотерее в базе данных
 type Lottery struct {
 	ContractAddress      string `json:"contractAddress"`      // Адрес контракта
-	Network              string `json:"network"`              // Сеть (eth, bsc)
+	Network              string `json:"network"`              // Сеть
 	Environment          string `json:"environment"`          // testnet или mainnet
 	TicketPrice          string `json:"ticketPrice"`          // Цена билета в wei
 	MaxTickets           uint64 `json:"maxTickets"`           // Максимум билетов
@@ -17,7 +17,7 @@ type Lottery struct {
 
 // CreateLotteryRequest представляет запрос для создания новой лотереи
 type CreateLotteryRequest struct {
-	Network              string `json:"network"`              // Сеть: eth, bsc
+	Network              string `json:"network"`              // Сеть
 	Environment          string `json:"environment"`          // testnet или mainnet
 	TicketPrice          string `json:"ticketPrice"`          // Цена билета в wei
 	MaxTickets           uint64 `json:"maxTickets"`           // Максимум билетов

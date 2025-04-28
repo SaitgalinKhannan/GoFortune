@@ -69,6 +69,10 @@ func (s *LotteryService) GetLotteries() ([]models.Lottery, error) {
 	return s.repo.GetAll()
 }
 
+func (s *LotteryService) DeleteLottery(contractAddress string) (bool, error) {
+	return s.repo.DeleteByContractAddress(contractAddress)
+}
+
 // Валидация запроса
 func validateRequest(req models.CreateLotteryRequest, chains config.Chains) error {
 	// Проверка сети
