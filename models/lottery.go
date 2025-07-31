@@ -5,7 +5,8 @@ type Lottery struct {
 	ContractAddress      string `json:"contractAddress"`      // Адрес контракта
 	Network              string `json:"network"`              // Сеть
 	Environment          string `json:"environment"`          // testnet или mainnet
-	TicketPrice          string `json:"ticketPrice"`          // Цена билета в wei
+	Coin                 string `json:"coin"`                 // монета
+	TicketPrice          string `json:"ticketPrice"`          // Цена билета
 	MaxTickets           uint64 `json:"maxTickets"`           // Максимум билетов
 	OwnerFeePercent      uint64 `json:"ownerFeePercent"`      // % владельцу
 	WinnerPrizePercent   uint64 `json:"winnerPrizePercent"`   // % победителю
@@ -19,7 +20,8 @@ type Lottery struct {
 type CreateLotteryRequest struct {
 	Network              string `json:"network"`              // Сеть
 	Environment          string `json:"environment"`          // testnet или mainnet
-	TicketPrice          string `json:"ticketPrice"`          // Цена билета в wei
+	Coin                 string `json:"coin"`                 // монета
+	TicketPrice          string `json:"ticketPrice"`          // Цена билета
 	MaxTickets           uint64 `json:"maxTickets"`           // Максимум билетов
 	OwnerFeePercent      uint64 `json:"ownerFeePercent"`      // % владельцу
 	WinnerPrizePercent   uint64 `json:"winnerPrizePercent"`   // % победителю

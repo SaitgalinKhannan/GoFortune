@@ -38,7 +38,7 @@ func main() {
 		}
 	}(db)
 
-	// Подключение к BNB testnet
+	// Подключение к сети
 	client, err := ethclient.Dial(cfg.Chains.Chains[1].RPCUrl)
 	if err != nil {
 		log.Fatalf("Не удалось подключиться к BNB testnet: %v", err)

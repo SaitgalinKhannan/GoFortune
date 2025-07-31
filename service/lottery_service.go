@@ -45,6 +45,7 @@ func (s *LotteryService) CreateLottery(req models.CreateLotteryRequest, cfg *con
 		ContractAddress:      contractAddress.Hex(),
 		Network:              req.Network,
 		Environment:          req.Environment,
+		Coin:                 req.Coin,
 		TicketPrice:          req.TicketPrice,
 		MaxTickets:           req.MaxTickets,
 		OwnerFeePercent:      req.OwnerFeePercent,

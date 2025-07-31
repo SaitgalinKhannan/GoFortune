@@ -63,15 +63,16 @@ func (r *LotteryRepository) GetAll() ([]models.Lottery, error) {
 func (r *LotteryRepository) Save(lottery *models.Lottery) error {
 	query := `
     INSERT INTO lotteries (
-        contract_address, network, environment, ticket_price, max_tickets,
+        contract_address, network, environment, coin, ticket_price, max_tickets,
         owner_fee_percent, winner_prize_percent, returned_prize_percent,
         start_time, duration, created_at
-    ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)`
+    ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12)`
 
 	_, err := r.db.Exec(query,
 		lottery.ContractAddress,
 		lottery.Network,
 		lottery.Environment,
+		lottery.Coin,
 		lottery.TicketPrice,
 		lottery.MaxTickets,
 		lottery.OwnerFeePercent,
